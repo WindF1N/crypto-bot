@@ -49,7 +49,7 @@ def on_message(ws, message):
         if data["topic"] == "realtimes":
             symbol = data["symbol"]
             price = data["data"][0]["c"]
-            print(f"Symbol: {symbol}, Price: {price}")
+            # print(f"Symbol: {symbol}, Price: {price}")
             client = redis.Redis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=os.getenv('REDIS_DB'))
             client.hset(f"bybit_rate:{symbol}", mapping={"price": price})
             client.expire(f"bybit_rate:{symbol}", os.getenv('RATES_EXPIRE_TIME'))

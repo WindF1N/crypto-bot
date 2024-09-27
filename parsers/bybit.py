@@ -45,7 +45,7 @@ def get_all_symbols():
                 continue
             if symbol not in symbols:
                 symbols.append(symbol)
-            print(f"Найдена пара: {symbol} из {rate_key.decode('utf-8').split(':')[1]}")
+            # print(f"Найдена пара: {symbol} из {rate_key.decode('utf-8').split(':')[1]}")
     except:
         traceback.print_exc()
         return []
@@ -73,7 +73,7 @@ def get_spot_prices(symbols):
                 if data["retCode"] == 0:
                     # Вывод спотовых цен
                     ticker = data["result"]
-                    print(f"Символ: {symbol.replace('-', '')}, Цена: {ticker['price']}")
+                    # print(f"Символ: {symbol.replace('-', '')}, Цена: {ticker['price']}")
                     client.hset(f"bybit_rate:{symbol.replace('-', '')}", mapping={"price": ticker['price']})
                     client.expire(f"bybit_rate:{symbol.replace('-', '')}", os.getenv('RATES_EXPIRE_TIME'))
                     rate_keys = client.lrange('bybit_symbols', 0, -1)
@@ -84,7 +84,7 @@ def get_spot_prices(symbols):
                         client.rpush('bybit_symbols', symbol)
                 else:
                     client.lrem('bybit_symbols', 0, symbol)
-                    print(f"Символ: {symbol.replace('-', '')}, Ошибка: {data['retMsg']}")
+                    # print(f"Символ: {symbol.replace('-', '')}, Ошибка: {data['retMsg']}")
                 
             except requests.RequestException as e:
                 print(f"Error fetching spot prices: {e}")

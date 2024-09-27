@@ -89,8 +89,8 @@ def process_payload(payload, data):
                     "marks": ",".join(changer["marks"]),
                     "extra": extra
                 }
-                print(symbol, network, data[rate_key])
-                print(changer)
+                # print(symbol, network, data[rate_key])
+                # print(changer)
                 rate_key_ = f'rate:{data[rate_key]}:{changer["changer"]}'
                 client.hset(rate_key_, mapping=rate_data)
                 client.expire(rate_key_, os.getenv('RATES_EXPIRE_TIME'))
