@@ -109,6 +109,9 @@ def searching_for_profitable_deals():
                         bybit_rate_0 = client.hget(f'bybit_rate:{rate_data["pair"].split("-")[0]}USDT', 'price')
                         bybit_rate_1 = client.hget(f'bybit_rate:{rate_data["pair"].split("-")[1]}USDT', 'price')
 
+                        if not bybit_rate_0 and not bybit_rate_1:
+                            continue
+
                         bybit_price_0 = float(bybit_rate_0.decode('utf-8'))
                         bybit_price_1 = float(bybit_rate_1.decode('utf-8'))
 
