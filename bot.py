@@ -122,7 +122,7 @@ async def send_profitable_deals():
                         print(message_id_key)
         
         # Ждем 5 секунд перед следующей проверкой
-        await asyncio.sleep(30)
+        await asyncio.sleep(15)
 
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
