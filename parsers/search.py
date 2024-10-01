@@ -48,7 +48,7 @@ def searching_for_profitable_deals():
                                     "inmax": rate_data['inmax']
                                 })
                                 client.expire(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", os.getenv('PROFITABLE_DEALS_EXPIRE_TIME'))
-                                profitable_deal = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}").items()}
+                                # profitable_deal = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}").items()}
                                 # print(f"1. ByBit: {' -> '.join(reversed(profitable_deal['pair'].split('-')))}")
                                 # print(f"Цена: {profitable_deal['bybit_price']}")
                                 # print(f"Спот: {profitable_deal['bybit_url']}\n")
@@ -87,7 +87,7 @@ def searching_for_profitable_deals():
                                     "inmax": rate_data['inmax']
                                 })
                                 client.expire(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", os.getenv('PROFITABLE_DEALS_EXPIRE_TIME'))
-                                profitable_deal = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}").items()}
+                                # profitable_deal = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}").items()}
                                 # print(f"""1. Bestchange: {profitable_deal['pair'].split('-')[0]}{f" {profitable_deal['network'].split('-')[0]}" if profitable_deal['network'].split('-')[0] != '' else ''} -> {profitable_deal['pair'].split('-')[1]}{f" {profitable_deal['network'].split('-')[1]}" if profitable_deal['network'].split('-')[1] != '' else ''}""")
                                 # print(f"Цена: {profitable_deal['bestchange_price']}")
                                 # print(f"Обменник: {profitable_deal['changer_name']}")
@@ -140,7 +140,7 @@ def searching_for_profitable_deals():
                                     "inmax": rate_data['inmax']
                                 })
                                 client.expire(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", os.getenv('PROFITABLE_DEALS_EXPIRE_TIME'))
-                                profitable_deal = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}").items()}
+                                # profitable_deal = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}").items()}
                                 # print(f"1. ByBit: USDT -> {profitable_deal['pair'].split('-')[0]}")
                                 # print(f"Цена: {profitable_deal['bybit_price_0']}")
                                 # print(f"Спот: {profitable_deal['bybit_url_0']}\n")

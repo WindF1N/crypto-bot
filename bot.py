@@ -119,7 +119,7 @@ async def send_profitable_deals():
                             print(f"Error deleting message: {e}")
                         # Удаляем message_id из Redis
                         redis_client.delete(message_id_key)
-                        print(message_id_key)
+                        # print(message_id_key)
         
         # Ждем 5 секунд перед следующей проверкой
         await asyncio.sleep(15)

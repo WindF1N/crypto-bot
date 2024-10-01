@@ -109,14 +109,14 @@ def fetch_and_save_rates():
         try:
             currency = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(currency_id).items()}
             if 'id' not in currency:
-                print(f"Currency without 'id' key: {currency_id}")
+                # print(f"Currency without 'id' key: {currency_id}")
                 continue
             for currency2_id in client.keys('currency:*'):
                 if currency_id != currency2_id:
                     try:
                         currency2 = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(currency2_id).items()}
                         if 'id' not in currency2:
-                            print(f"Currency without 'id' key: {currency2_id}")
+                            # print(f"Currency without 'id' key: {currency2_id}")
                             continue
                         payload.append(f'{currency["id"]}-{currency2["id"]}')
                         data[f'{currency["id"]}-{currency2["id"]}'] = f'{currency["code"]}-{currency2["code"]}'
