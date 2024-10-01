@@ -20,7 +20,7 @@ dp = Dispatcher(bot)
 # Инициализация Redis клиента
 redis_client = redis.Redis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB)
 
-users = ["474372372", "453500861", "930385675", "661325490"]
+users = ["474372372", "453500861", "930385675", "661325490", "1061231427"]
 
 async def send_profitable_deals():
     while True:
