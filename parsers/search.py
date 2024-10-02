@@ -1,3 +1,5 @@
+# بِسْمِ ٱللّٰهِ ٱلرَّحْمٰنِ ٱلرَّحِيْمِ ( Bismillāhi r-Raḥmāni r-Raḥīm )
+
 import redis
 import traceback
 from dotenv import load_dotenv
@@ -28,6 +30,8 @@ def searching_for_profitable_deals():
                         bybit_price = float(bybit_rate.decode('utf-8'))
                         if bybit_price < bestchange_sell_price:
                             if 5 > bestchange_sell_price / bybit_price * 100 - 100 > 0.3:
+                                if rate_data["inmin"] == '':
+                                    rate_data["inmin"] = 0
                                 if 1000 / bybit_price < float(rate_data["inmin"]):
                                     continue
                                 changer = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f'changer:{rate_data["changer_id"]}').items()}
@@ -45,28 +49,17 @@ def searching_for_profitable_deals():
                                     "marks": rate_data['marks'],
                                     "extra": rate_data['extra'],
                                     "inmin": rate_data['inmin'],
-                                    "inmax": rate_data['inmax']
+                                    "inmax": rate_data['inmax'],
+                                    "changer_page": changer["page"]
                                 })
                                 client.expire(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", os.getenv('PROFITABLE_DEALS_EXPIRE_TIME'))
-                                # profitable_deal = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}").items()}
-                                # print(f"1. ByBit: {' -> '.join(reversed(profitable_deal['pair'].split('-')))}")
-                                # print(f"Цена: {profitable_deal['bybit_price']}")
-                                # print(f"Спот: {profitable_deal['bybit_url']}\n")
-                                # print(f"""2. Bestchange: {profitable_deal['pair'].split('-')[0]}{f" {profitable_deal['network'].split('-')[0]}" if profitable_deal['network'].split('-')[0] != '' else ''} -> {profitable_deal['pair'].split('-')[1]}{f" {profitable_deal['network'].split('-')[1]}" if profitable_deal['network'].split('-')[1] != '' else ''}""")
-                                # print(f"Цена: {profitable_deal['bestchange_price']}")
-                                # print(f"Обменник: {profitable_deal['changer_name']}")
-                                # print(f"Рейтинг: {profitable_deal['changer_rating']}")
-                                # print(f"Ссылка: {profitable_deal['bestchange_url']}")
-                                # print(f"""К отдаче: ≈ {round(1000 / float(profitable_deal['bybit_price']), 4)} {profitable_deal['pair'].split('-')[0]}{f" {profitable_deal['network'].split('-')[0]}" if profitable_deal['network'].split('-')[0] != '' else ''}""")
-                                # print(f"""К получению: ≈ {round(1000 / float(profitable_deal['bybit_price']) * float(profitable_deal['bestchange_price']), 4)} {profitable_deal['pair'].split('-')[1]}{f" {profitable_deal['network'].split('-')[1]}" if profitable_deal['network'].split('-')[1] != '' else ''}\n""")
-                                # print(f"Спред: {profitable_deal['spread']}")
-                                # print(f"Итого: {round(1000 / float(profitable_deal['bybit_price']) * float(profitable_deal['bestchange_price']), 4)} {profitable_deal['pair'].split('-')[1]}")
-                                # print("-" * 100)
                     else:
                         bestchange_sell_price = round(1 / float(rate_data['rate']), 10)
                         bybit_price = float(bybit_rate.decode('utf-8'))
                         if bybit_price > float(rate_data['rate']):
                             if 5 > 100 - float(rate_data['rate']) / bybit_price * 100 > 0.3:
+                                if rate_data["inmin"] == '':
+                                    rate_data["inmin"] = 0
                                 if 1000 < float(rate_data["inmin"]):
                                     continue
                                 changer = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f'changer:{rate_data["changer_id"]}').items()}
@@ -84,24 +77,10 @@ def searching_for_profitable_deals():
                                     "marks": rate_data['marks'],
                                     "extra": rate_data['extra'],
                                     "inmin": rate_data['inmin'],
-                                    "inmax": rate_data['inmax']
+                                    "inmax": rate_data['inmax'],
+                                    "changer_page": changer["page"]
                                 })
                                 client.expire(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", os.getenv('PROFITABLE_DEALS_EXPIRE_TIME'))
-                                # profitable_deal = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}").items()}
-                                # print(f"""1. Bestchange: {profitable_deal['pair'].split('-')[0]}{f" {profitable_deal['network'].split('-')[0]}" if profitable_deal['network'].split('-')[0] != '' else ''} -> {profitable_deal['pair'].split('-')[1]}{f" {profitable_deal['network'].split('-')[1]}" if profitable_deal['network'].split('-')[1] != '' else ''}""")
-                                # print(f"Цена: {profitable_deal['bestchange_price']}")
-                                # print(f"Обменник: {profitable_deal['changer_name']}")
-                                # print(f"Рейтинг: {profitable_deal['changer_rating']}")
-                                # print(f"Ссылка: {profitable_deal['bestchange_url']}")
-                                # print(f"""К отдаче: ≈ 1000 {profitable_deal['pair'].split('-')[0]}{f" {profitable_deal['network'].split('-')[0]}" if profitable_deal['network'].split('-')[0] != '' else ''}""")
-                                # print(f"""К получению: ≈ {round(1000 * float(profitable_deal['bestchange_price']), 4)} {profitable_deal['pair'].split('-')[1]}{f" {profitable_deal['network'].split('-')[1]}" if profitable_deal['network'].split('-')[1] != '' else ''}\n""")
-                                # print(f"2. ByBit: {' -> '.join(reversed(profitable_deal['pair'].split('-')))}")
-                                # print(f"Цена: {profitable_deal['bybit_price']}")
-                                # print(f"Спот: {profitable_deal['bybit_url']}\n")
-                                # print(f"Хедж: https://www.bybit.com/trade/usdt/{''.join(reversed(profitable_deal['pair'].split('-')))}\n")
-                                # print(f"Спред: {profitable_deal['spread']}")
-                                # print(f"Итого: {round(1000 * float(profitable_deal['bybit_price']) * float(profitable_deal['bestchange_price']), 4)} {profitable_deal['pair'].split('-')[0]}")
-                                # print("-" * 100)
                 else:
                     if reversed_ == True:
                         bestchange_sell_price = round(1 / float(rate_data['rate']), 10)
@@ -118,6 +97,8 @@ def searching_for_profitable_deals():
                         if 1 / bybit_price_0 * bestchange_sell_price * bybit_price_1 / 1 > 1:
                             
                             if 5 > 1 / bybit_price_0 * bestchange_sell_price * bybit_price_1 / 1 * 100 - 100 > 0.3:
+                                if rate_data["inmin"] == '':
+                                    rate_data["inmin"] = 0
                                 if 1000 / bybit_price_0 < float(rate_data["inmin"]):
                                     continue
                                 changer = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f'changer:{rate_data["changer_id"]}').items()}
@@ -137,27 +118,10 @@ def searching_for_profitable_deals():
                                     "marks": rate_data['marks'],
                                     "extra": rate_data['extra'],
                                     "inmin": rate_data['inmin'],
-                                    "inmax": rate_data['inmax']
+                                    "inmax": rate_data['inmax'],
+                                    "changer_page": changer["page"]
                                 })
                                 client.expire(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", os.getenv('PROFITABLE_DEALS_EXPIRE_TIME'))
-                                # profitable_deal = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}").items()}
-                                # print(f"1. ByBit: USDT -> {profitable_deal['pair'].split('-')[0]}")
-                                # print(f"Цена: {profitable_deal['bybit_price_0']}")
-                                # print(f"Спот: {profitable_deal['bybit_url_0']}\n")
-                                # print(f"""2. Bestchange: {profitable_deal['pair'].split('-')[0]}{f" {profitable_deal['network'].split('-')[0]}" if profitable_deal['network'].split('-')[0] != '' else ''} -> {profitable_deal['pair'].split('-')[1]}{f" {profitable_deal['network'].split('-')[1]}" if profitable_deal['network'].split('-')[1] != '' else ''}""")
-                                # print(f"Цена: {profitable_deal['bestchange_price']}")
-                                # print(f"Обменник: {profitable_deal['changer_name']}")
-                                # print(f"Рейтинг: {profitable_deal['changer_rating']}")
-                                # print(f"Ссылка: {profitable_deal['bestchange_url']}")
-                                # print(f"""К отдаче: ≈ {round(1000 / float(profitable_deal['bybit_price_0']), 4)} {profitable_deal['pair'].split('-')[0]}{f" {profitable_deal['network'].split('-')[0]}" if profitable_deal['network'].split('-')[0] != '' else ''}""")
-                                # print(f"""К получению: ≈ {round(1000 / float(profitable_deal['bybit_price_0']) * float(profitable_deal['bestchange_price']), 4)} {profitable_deal['pair'].split('-')[1]}{f" {profitable_deal['network'].split('-')[1]}" if profitable_deal['network'].split('-')[1] != '' else ''}\n""")
-                                # print(f"3. ByBit: {profitable_deal['pair'].split('-')[1]} -> USDT")
-                                # print(f"Цена: {profitable_deal['bybit_price_1']}")
-                                # print(f"Спот: {profitable_deal['bybit_url_1']}\n")
-                                # print(f"Хедж: https://www.bybit.com/trade/usdt/{profitable_deal['pair'].split('-')[1]}USDT\n")
-                                # print(f"Спред: {profitable_deal['spread']}")
-                                # print(f"Итого: {round(1000 / float(profitable_deal['bybit_price_0']) * float(profitable_deal['bestchange_price']) * float(profitable_deal['bybit_price_1']), 4)} USDT")
-                                # print("-" * 100)
                             
     except:
         print(f"Error printing rates: {traceback.print_exc()}")

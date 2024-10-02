@@ -1,3 +1,5 @@
+# بِسْمِ ٱللّٰهِ ٱلرَّحْمٰنِ ٱلرَّحِيْمِ ( Bismillāhi r-Raḥmāni r-Raḥīm )
+
 import requests
 import redis
 import traceback
