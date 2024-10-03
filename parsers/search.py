@@ -129,16 +129,15 @@ def main():
         client = redis.Redis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=os.getenv('REDIS_DB'))
         rate_keys = client.keys('rate:*')
         client.close()
-        if len(rate_keys) > 0:
+        num_processes = cpu_count()
+        if len(rate_keys) > 0 and num_processes > 0:
             # Разделение ключей на части для параллельной обработки
-            num_processes = cpu_count()
             chunk_size = len(rate_keys) // num_processes
             rate_key_chunks = [rate_keys[i:i + chunk_size] for i in range(0, len(rate_keys), chunk_size)]
             with Pool(num_processes) as pool:
                 pool.map(searching_for_profitable_deals, rate_key_chunks)
-            print("Количество параллельных обработок: ", num_processes)
         end_time = time.time()
-        print(f"Время выполнения функции: {end_time - start_time} секунд\nКоличество ключей: {len(rate_keys)}")
+        print(f"Время выполнения функции: {end_time - start_time} секунд\nКоличество ключей: {len(rate_keys)}\nКоличество параллельных обработок: {num_processes}")
 
 if __name__ == "__main__":
     main()
