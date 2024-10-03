@@ -136,6 +136,7 @@ def main():
             rate_key_chunks = [rate_keys[i:i + chunk_size] for i in range(0, len(rate_keys), chunk_size)]
             with Pool(num_processes) as pool:
                 pool.map(searching_for_profitable_deals, rate_key_chunks)
+            print("Количество параллельных обработок: ", num_processes)
         end_time = time.time()
         print(f"Время выполнения функции: {end_time - start_time} секунд\nКоличество ключей: {len(rate_keys)}")
 
