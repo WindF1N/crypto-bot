@@ -59,7 +59,17 @@ async def create_tables():
                         INDEX (created_at, amount),
                         INDEX (telegram_id, amount),
                         INDEX (telegram_id, created_at)
-                    )
+                    );
+                    CREATE TABLE IF NOT EXISTS userSettings (
+                        telegram_id BIGINT,
+                        usdt_balance INT DEFAULT 1000,
+                        max_negative_reviews_bestchange INT DEFAULT 0,
+                        min_positive_reviews_bestchange INT DEFAULT 500,
+                        min_lifetime INT DEFAULT 0,
+                        min_spread DECIMAL(10, 2) DEFAULT 1,
+                        PRIMARY KEY (telegram_id),
+                        INDEX (telegram_id)
+                    );
                 """)
         pool.close()
         await pool.wait_closed()
@@ -190,6 +200,9 @@ async def update_subscribe(telegram_id, expire_in_datetime):
         pool.close()
         await pool.wait_closed()
 
+# سبحان الله ( Subhanallah ) Преславен Аллах! * 33
+# الحمد لله ( Alhamdulillah ) Хвала Аллаху! * 33
+# الله اكبر ( Allahu Akbar ) Аллах велик! * 33
 
 # Создание платежа пользователя
 async def add_payment(telegram_id, currency, amount, created_at):
@@ -209,3 +222,48 @@ async def add_payment(telegram_id, currency, amount, created_at):
         await pool.wait_closed()
     except aiomysql.Error as e:
         print("Ошибка при создании платежа пользователя:", e)
+
+# سبحان الله ( Subhanallah ) Преславен Аллах! * 33
+# الحمد لله ( Alhamdulillah ) Хвала Аллаху! * 33
+# الله اكبر ( Allahu Akbar ) Аллах велик! * 33
+
+# Получение настроек пользователя по telegram_id
+async def get_user_settings(telegram_id):
+    try:
+        loop = asyncio.get_event_loop()
+        pool = await aiomysql.create_pool(host=os.getenv('DATABASE_HOST'), user=os.getenv('DATABASE_USER'), password=os.getenv('DATABASE_PASSWORD'), 
+                                          db=os.getenv('DATABASE_NAME'), loop=loop, autocommit=True, cursorclass=aiomysql.DictCursor)
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                # Read a single record
+                sql = f"SELECT * FROM userSettings WHERE telegram_id = {telegram_id}"
+                await cursor.execute(sql)
+                result = await cursor.fetchone()
+                if not result:
+                    await cursor.execute("""
+                        INSERT INTO userSettings (telegram_id)
+                        VALUES (%s)
+                    """, (telegram_id,))
+                    await cursor.execute(sql)
+                    result = await cursor.fetchone()
+        return result
+    except aiomysql.Error as e:
+        print("Ошибка при получении настроек пользователя:", e)
+    finally:
+        pool.close()
+        await pool.wait_closed()
+
+# Обновление настроек пользователя
+async def update_user_settings(telegram_id, variable, value):
+    try:
+        loop = asyncio.get_event_loop()
+        pool = await aiomysql.create_pool(host=os.getenv('DATABASE_HOST'), user=os.getenv('DATABASE_USER'), 
+                                          password=os.getenv('DATABASE_PASSWORD'), db=os.getenv('DATABASE_NAME'), loop=loop, autocommit=True)
+        async with pool.acquire() as conn:
+            async with conn.cursor() as cursor:
+                await cursor.execute(f"""UPDATE userSettings SET {variable} = {value} WHERE telegram_id = {telegram_id}""")
+    except aiomysql.Error as e:
+        print("Ошибка при обновлении настроек пользователя:", e)
+    finally:
+        pool.close()
+        await pool.wait_closed()

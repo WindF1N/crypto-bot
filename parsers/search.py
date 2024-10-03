@@ -4,6 +4,8 @@ import redis
 import traceback
 from dotenv import load_dotenv
 import os
+import time
+from multiprocessing import Pool, cpu_count
 
 # Определение пути к файлу .env
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../.env'))
@@ -11,10 +13,10 @@ env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../.env'))
 # Загрузка переменных окружения из файла .env
 load_dotenv(dotenv_path=env_path)
 
-def searching_for_profitable_deals():
+def searching_for_profitable_deals(rate_keys):
     client = redis.Redis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=os.getenv('REDIS_DB'))
     try:
-        for rate_key in client.keys('rate:*'):
+        for rate_key in rate_keys:
             rate_data = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(rate_key).items()}
             if "pair" not in rate_data:
                 continue
@@ -29,11 +31,9 @@ def searching_for_profitable_deals():
                         bestchange_sell_price = round(1 / float(rate_data['rate']), 10)
                         bybit_price = float(bybit_rate.decode('utf-8'))
                         if bybit_price < bestchange_sell_price:
-                            if 5 > bestchange_sell_price / bybit_price * 100 - 100 > 0.3:
+                            if 10 > bestchange_sell_price / bybit_price * 100 - 100:
                                 if rate_data["inmin"] == '':
                                     rate_data["inmin"] = 0
-                                if 1000 / bybit_price < float(rate_data["inmin"]):
-                                    continue
                                 changer = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f'changer:{rate_data["changer_id"]}').items()}
                                 client.hset(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", mapping={
                                     "type": 1,
@@ -57,11 +57,9 @@ def searching_for_profitable_deals():
                         bestchange_sell_price = round(1 / float(rate_data['rate']), 10)
                         bybit_price = float(bybit_rate.decode('utf-8'))
                         if bybit_price > float(rate_data['rate']):
-                            if 5 > 100 - float(rate_data['rate']) / bybit_price * 100 > 0.3:
+                            if 10 > 100 - float(rate_data['rate']) / bybit_price * 100:
                                 if rate_data["inmin"] == '':
                                     rate_data["inmin"] = 0
-                                if 1000 < float(rate_data["inmin"]):
-                                    continue
                                 changer = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f'changer:{rate_data["changer_id"]}').items()}
                                 client.hset(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", mapping={
                                     "type": 2,
@@ -95,12 +93,9 @@ def searching_for_profitable_deals():
                         bybit_price_1 = float(bybit_rate_1.decode('utf-8'))
 
                         if 1 / bybit_price_0 * bestchange_sell_price * bybit_price_1 / 1 > 1:
-                            
-                            if 5 > 1 / bybit_price_0 * bestchange_sell_price * bybit_price_1 / 1 * 100 - 100 > 0.3:
+                            if 10 > 1 / bybit_price_0 * bestchange_sell_price * bybit_price_1 / 1 * 100 - 100:
                                 if rate_data["inmin"] == '':
                                     rate_data["inmin"] = 0
-                                if 1000 / bybit_price_0 < float(rate_data["inmin"]):
-                                    continue
                                 changer = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f'changer:{rate_data["changer_id"]}').items()}
                                 client.hset(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", mapping={
                                     "type": 3,
@@ -130,7 +125,19 @@ def searching_for_profitable_deals():
 
 def main():
     while True:
-        searching_for_profitable_deals()
+        start_time = time.time()
+        client = redis.Redis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=os.getenv('REDIS_DB'))
+        rate_keys = client.keys('rate:*')
+        client.close()
+        if len(rate_keys) > 0:
+            # Разделение ключей на части для параллельной обработки
+            num_processes = cpu_count()
+            chunk_size = len(rate_keys) // num_processes
+            rate_key_chunks = [rate_keys[i:i + chunk_size] for i in range(0, len(rate_keys), chunk_size)]
+            with Pool(num_processes) as pool:
+                pool.map(searching_for_profitable_deals, rate_key_chunks)
+        end_time = time.time()
+        print(f"Время выполнения функции: {end_time - start_time} секунд\nКоличество ключей: {len(rate_keys)}")
 
 if __name__ == "__main__":
     main()
