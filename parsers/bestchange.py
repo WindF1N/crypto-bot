@@ -5,7 +5,9 @@ import redis
 import traceback
 from dotenv import load_dotenv
 import os
+import time
 import json
+from multiprocessing import Pool, cpu_count
 
 # Определение пути к файлу .env
 env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../.env'))
@@ -36,7 +38,8 @@ def fetch_currencies():
     finally:
         client.close()
 
-def process_payload(payload, data):
+def process_payload(args):
+    payload, data = args
     client = redis.Redis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=os.getenv('REDIS_DB'))
     try:
         response = requests.get(f"https://www.bestchange.app/v2/{os.getenv('BESTCHANGE_API_KEY')}/rates/{'+'.join(payload)}")
@@ -123,20 +126,30 @@ def fetch_and_save_rates():
                         payload.append(f'{currency["id"]}-{currency2["id"]}')
                         data[f'{currency["id"]}-{currency2["id"]}'] = f'{currency["code"]}-{currency2["code"]}'
                         if len(payload) == 500:
-                            process_payload(payload, data)
+                            with Pool(cpu_count()) as pool:
+                                pool.map(process_payload, [(payload[i:i+25], data) for i in range(0, len(payload), 25)])
                             payload = []
                     except:
                         print(f"Error processing currency2: {traceback.print_exc()}")
         except:
             print(f"Error processing currency: {traceback.print_exc()}")
     if payload:
-        process_payload(payload, data)
+        with Pool(cpu_count()) as pool:
+            pool.map(process_payload, [(payload[i:i+25], data) for i in range(0, len(payload), 25)])
     client.close()
 
 def main():
+    client = redis.Redis(host=os.getenv('REDIS_HOST'), port=os.getenv('REDIS_PORT'), db=os.getenv('REDIS_DB'))
     while True:
+        start_time = time.time()
         fetch_currencies()
         fetch_and_save_rates()
+        rate_keys = len(client.keys("rate:*"))
+        end_time = time.time()
+        print("bestchange.py")
+        print(f"Время выполнения: {end_time - start_time} секунд\nКоличество ключей: {rate_keys}")
+        print('-' * 100)
+    client.close()
 
 if __name__ == "__main__":
     main()

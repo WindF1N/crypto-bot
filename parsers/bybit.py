@@ -89,7 +89,8 @@ def get_spot_prices(symbols):
                     # print(f"Символ: {symbol.replace('-', '')}, Ошибка: {data['retMsg']}")
                 
             except requests.RequestException as e:
-                print(f"Error fetching spot prices: {e}")
+                if "403 Client Error: Forbidden for url:" not in str(e):
+                    print(f"Error fetching spot prices: {e}")
                 time.sleep(1.5)
                 get_spot_prices([symbol])
         

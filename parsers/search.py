@@ -53,6 +53,10 @@ def searching_for_profitable_deals(rate_keys):
                                     "changer_page": changer["page"]
                                 })
                                 client.expire(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", os.getenv('PROFITABLE_DEALS_EXPIRE_TIME'))
+                            else:
+                                client.delete(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}")
+                        else:
+                            client.delete(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}")
                     else:
                         bestchange_sell_price = round(1 / float(rate_data['rate']), 10)
                         bybit_price = float(bybit_rate.decode('utf-8'))
@@ -79,6 +83,10 @@ def searching_for_profitable_deals(rate_keys):
                                     "changer_page": changer["page"]
                                 })
                                 client.expire(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", os.getenv('PROFITABLE_DEALS_EXPIRE_TIME'))
+                            else:
+                                client.delete(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}")
+                        else:
+                            client.delete(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}")
                 else:
                     if reversed_ == True:
                         bestchange_sell_price = round(1 / float(rate_data['rate']), 10)
@@ -117,9 +125,13 @@ def searching_for_profitable_deals(rate_keys):
                                     "changer_page": changer["page"]
                                 })
                                 client.expire(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", os.getenv('PROFITABLE_DEALS_EXPIRE_TIME'))
+                            else:
+                                client.delete(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}")
+                        else:
+                            client.delete(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}")
                             
     except:
-        print(f"Error printing rates: {traceback.print_exc()}")
+        print(f"Error searching profitables deals: {traceback.print_exc()}")
     finally:
         client.close()
 
@@ -137,7 +149,9 @@ def main():
             with Pool(num_processes) as pool:
                 pool.map(searching_for_profitable_deals, rate_key_chunks)
         end_time = time.time()
-        print(f"Время выполнения функции: {end_time - start_time} секунд\nКоличество ключей: {len(rate_keys)}\nКоличество параллельных обработок: {num_processes}")
+        print("search.py")
+        print(f"Время выполнения: {end_time - start_time} секунд\nКоличество ключей: {len(rate_keys)}\nКоличество параллельных обработок: {num_processes}")
+        print("-" * 100)
 
 if __name__ == "__main__":
     main()
