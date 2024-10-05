@@ -29,6 +29,8 @@ venv/bin/python parsers/bybit_ws.py > logs/bybit_ws.log 2>&1 &
 venv/bin/python parsers/changers.py > logs/changers.log 2>&1 &
 venv/bin/python parsers/search.py > logs/search.log 2>&1 &
 venv/bin/python bot.py > logs/bot.log 2>&1 &
+venv/bin/python send_deals.py > logs/send_deals.log 2>&1 &
+venv/bin/python delete_sended_deals.py > logs/delete_sended_deals.log 2>&1 &
 
 # Ожидание завершения всех фоновых процессов
 wait
