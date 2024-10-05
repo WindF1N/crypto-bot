@@ -54,14 +54,14 @@ async def send_message_to_user(user, deal_data, deal_key):
         return
     if float(user_settings['min_spread']) > float(deal_data["spread"].replace(" %", "")):
         return
-    if deal_data["type"] == 1:
-        if int(user_settings['usdt_balance']) / float(deal_data["bybit_price"]) < float(deal_data["inmin"]):
+    if deal_data["type"] == '1':
+        if int(user_settings['usdt_balance']) / float(deal_data["bybit_price"]) < float(deal_data["inmin"]) or int(user_settings['usdt_balance']) / float(deal_data["bybit_price"]) > float(deal_data["inmax"]):
             return
-    elif deal_data["type"] == 2:
-        if int(user_settings['usdt_balance']) < float(deal_data["inmin"]):
+    elif deal_data["type"] == '2':
+        if int(user_settings['usdt_balance']) < float(deal_data["inmin"]) or int(user_settings['usdt_balance']) > float(deal_data["inmax"]):
             return
-    elif deal_data["type"] == 3:
-        if int(user_settings['usdt_balance']) / float(deal_data["bybit_price_0"]) < float(deal_data["inmin"]):
+    elif deal_data["type"] == '3':
+        if int(user_settings['usdt_balance']) / float(deal_data["bybit_price_0"]) < float(deal_data["inmin"]) or int(user_settings['usdt_balance']) / float(deal_data["bybit_price_0"]) > float(deal_data["inmax"]):
             return
 
     if int(deal_data["type"]) == 1:
@@ -176,7 +176,7 @@ async def delete_profitable_deals():
                             redis_client.delete(message_id_key)
                         except Exception as e:
                             print(f"Error deleting message: {e}")
-                            if "Message can't be deleted for everyone" in str(e):
+                            if "Message can't be deleted for everyone" in str(e) or "Message to delete not found" in str(e):
                                 # Удаляем message_id из Redis
                                 redis_client.delete(message_id_key)
 
@@ -249,10 +249,10 @@ async def activate_monitoring_handler(message: types.Message):
         redis_client.expire(f"monitoring_{message.from_user.id}", 60*60)
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         keyboard.add("✖️ Завершить мониторинг")
-        await bot.send_message(message.chat.id, "🟢 Мониторинг успешно активирован.\n\n<i>Мониторинг автоматически отключится через 1 час.</i>", parse_mode=ParseMode.HTML, reply_markup=keyboard)
+        await bot.send_message(message.chat.id, "🟢 Мониторинг успешно активирован.", parse_mode=ParseMode.HTML, reply_markup=keyboard)
         # Ждем пока не выключится мониторинг
-        await asyncio.sleep(60*60)
-        await deactivate_monitoring_handler(message)
+        # await asyncio.sleep(60*60)
+        # await deactivate_monitoring_handler(message)
 
 # Обработчик кнопки "✖️ Завершить мониторинг"
 @dp.message_handler(text="✖️ Завершить мониторинг")
