@@ -246,7 +246,7 @@ async def activate_monitoring_handler(message: types.Message):
                 "min_spread": str(user_settings["min_spread"]),
             }
         )
-        redis_client.expire(f"monitoring_{message.from_user.id}", 60*60)
+        # redis_client.expire(f"monitoring_{message.from_user.id}", 60*60)
         keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
         keyboard.add("✖️ Завершить мониторинг")
         await bot.send_message(message.chat.id, "🟢 Мониторинг успешно активирован.", parse_mode=ParseMode.HTML, reply_markup=keyboard)
