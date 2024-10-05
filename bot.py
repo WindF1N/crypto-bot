@@ -129,25 +129,28 @@ async def send_message_to_user(user, deal_data, deal_key):
 
 async def send_profitable_deals():
     while True:
-        # Получаем все ключи, которые соответствуют шаблону profitable_deals:*
-        for deal_key in redis_client.keys('profitable_deals:*'):
-            # Получаем данные из Redis
-            try:
-                deal_data = {key.decode('utf-8'): value.decode('utf-8') for key, value in redis_client.hgetall(deal_key).items()}
-                if "type" not in deal_data:
+        try:
+            # Получаем все ключи, которые соответствуют шаблону profitable_deals:*
+            for deal_key in redis_client.keys('profitable_deals:*'):
+                # Получаем данные из Redis
+                try:
+                    deal_data = {key.decode('utf-8'): value.decode('utf-8') for key, value in redis_client.hgetall(deal_key).items()}
+                    if "type" not in deal_data:
+                        deal_data = None
+                except Exception as e:
+                    print(f"Error fetching deal data: {e}")
                     deal_data = None
-            except:
-                deal_data = None
-            if deal_data:
-                users = await get_active_subscribes(datetime.datetime.now(moscow_tz))
-                tasks = []
-                for user in users:
-                    user = user["telegram_id"]
-                    tasks.append(send_message_to_user(user, deal_data, deal_key))
-                await asyncio.gather(*tasks)
-                await asyncio.sleep(2)
-        # Ждем перед следующей проверкой
-        # await asyncio.sleep(int(os.getenv('TIME_TO_UPDATE_MESSAGES_IN_BOT')))
+
+                if deal_data:
+                    users = await get_active_subscribes(datetime.datetime.now(moscow_tz))
+                    tasks = []
+                    for user in users:
+                        user_id = user["telegram_id"]
+                        tasks.append(send_message_to_user(user_id, deal_data, deal_key))
+                    await asyncio.gather(*tasks)
+                    await asyncio.sleep(2)
+        except Exception as e:
+            print(f"Error in send_profitable_deals: {e}")
 
 async def delete_profitable_deals():
     while True:
