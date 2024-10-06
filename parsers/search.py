@@ -34,6 +34,8 @@ def searching_for_profitable_deals(rate_keys):
                             if 10 > bestchange_sell_price / bybit_price * 100 - 100:
                                 if rate_data["inmin"] == '':
                                     rate_data["inmin"] = 0
+                                if rate_data["inmax"] == '':
+                                    rate_data["inmax"] = 0
                                 changer = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f'changer:{rate_data["changer_id"]}').items()}
                                 client.hset(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", mapping={
                                     "type": 1,
@@ -64,6 +66,8 @@ def searching_for_profitable_deals(rate_keys):
                             if 10 > 100 - float(rate_data['rate']) / bybit_price * 100:
                                 if rate_data["inmin"] == '':
                                     rate_data["inmin"] = 0
+                                if rate_data["inmax"] == '':
+                                    rate_data["inmax"] = 0
                                 changer = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f'changer:{rate_data["changer_id"]}').items()}
                                 client.hset(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", mapping={
                                     "type": 2,
@@ -104,6 +108,8 @@ def searching_for_profitable_deals(rate_keys):
                             if 10 > 1 / bybit_price_0 * bestchange_sell_price * bybit_price_1 / 1 * 100 - 100:
                                 if rate_data["inmin"] == '':
                                     rate_data["inmin"] = 0
+                                if rate_data["inmax"] == '':
+                                    rate_data["inmax"] = 0
                                 changer = {key.decode('utf-8'): value.decode('utf-8') for key, value in client.hgetall(f'changer:{rate_data["changer_id"]}').items()}
                                 client.hset(f"profitable_deals:{rate_data['pair'].split('-')[0]}-{rate_data['pair'].split('-')[1]}:{rate_data['link'].split('?')[-1]}", mapping={
                                     "type": 3,
